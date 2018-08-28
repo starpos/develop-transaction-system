@@ -2,8 +2,17 @@ PREDEF:
 
 CHAPS:
   - cfp.re
+  - data.re
+  - transaction.re
+  - indexes.re
+  - wal.re
+  - concurrency-control.re
+  - file-io.re
+  - atomic-write.re
+  - basic-design.re
+  - next-step.re
+
 
 APPENDIX:
 
 POSTDEF:
-

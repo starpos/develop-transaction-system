@@ -23,11 +23,11 @@ language: ja
 
 # 書名
 # 読みを入れる例 booktitle: {name: "Re:VIEW EPUBサンプル", file-as: "リビューイーパブサンプル"}
-booktitle: Re:VIEWサンプル書籍
+booktitle: データベースシステム自作入門 v0.1
 
 # 著者名。「, 」で区切って複数指定できる
 # 読みを入れる例 aut: [{name: "青木峰郎", file-as: "アオキミネロウ"}, {name: "武藤健志", file-as: "ムトウケンシ"}, {name: "高橋征義", file-as: "タカハシマサヨシ"}, {name: "角征典", file-as: "カドマサノリ"}]
-aut: ["青木峰郎", "武藤健志", "高橋征義", "角征典"]
+aut: [{name: "星野喬", file-as: "ホシノタカシ"}]
 
 # 以下はオプション
 # 以下はオプション(autと同じように配列書式で複数指定可能)。
@@ -132,7 +132,8 @@ secnolevel: 2
 # cover: null
 #
 # 表紙に配置し、書籍の影絵にも利用する画像ファイル。省略した場合はnull (画像を使わない)。画像ディレクトリ内に置いてもディレクトリ名は不要(例: cover.jpg)
-coverimage: cover.jpg
+#coverimage: cover.jpg
+coverimage: null
 #
 # 表紙の後に大扉ページを作成するか。省略した場合はtrue (作成する)
 # titlepage: true
@@ -217,8 +218,8 @@ epubmaker:
   #
   # NCX目次の見出しレベルごとの飾り(配列で設定)。EPUB3ではNCXは作られない
   # ncxindent:
-  #- 
-  #- - 
+  #-
+  #- -
   # フックは、各段階で介入したいときのプログラムを指定する。自動で適切な引数が渡される
   # プログラムには実行権限が必要
   # ファイル変換処理の前に実行するプログラム。スタイルシートのコンパイルをしたいときなどに利用する。
@@ -325,4 +326,3 @@ pdfmaker:
   # 奥付を作成するか。trueを指定するとデフォルトの奥付、ファイル名を指定するとそれがcolophon.htmlとしてコピーされる
   colophon: true
   # pdfmaker:階層を使うものはここまで
-
