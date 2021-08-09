@@ -13,6 +13,6 @@ QQQ
 
 
 
-- read-set と write-set の管理についても書くべき．
+- read-set と write-set の管理についても書くべき。
 
-- Opacity についてコラムを書く．
+- Opacity についてコラムを書く。
