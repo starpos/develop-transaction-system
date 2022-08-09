@@ -1,3 +1,3 @@
 #!/bin/sh
 
-rake pdf
+rake pdf t=ebook
