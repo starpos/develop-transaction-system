@@ -201,7 +201,45 @@ Read lock も WAL 永続化の後にはずす場合は SS2PL となります。
  ** Cicada (2017)
 
 それぞれ対応する論文がありますので、興味のある方は読んでみてください。
+以下、列挙します。
 
+ * Speedy transactions in multicore in-memory databases
+ ** @<href>{https://dl.acm.org/doi/10.1145/2517349.2522713}
+ ** SOSP2013
+ ** Silo 論文
+ * FOEDUS: OLTP Engine for a Thousand Cores and NVRAM
+ ** @<href>{https://dl.acm.org/doi/10.1145/2723372.2746480}
+ ** SIGMOD2015
+ ** FOEDUS 論文
+ * Mostly-optimistic concurrency control for highly contended dynamic workloads on a thousand cores
+ ** @<href>{https://dl.acm.org/doi/10.14778/3015274.3015276}
+ ** PVLDB2016
+ ** MOCC 論文
+ * The Serial Safety Net: Efficient Concurrency Control on Modern Hardware
+ ** @<href>{https://dl.acm.org/doi/10.1145/2771937.2771949}
+ ** DaMoN2015
+ ** SSN 論文
+ * TicToc: Time Traveling Optimistic Concurrency Control
+ ** @<href>{https://dl.acm.org/doi/10.1145/2882903.2882935}
+ ** SIGMOD2016
+ ** TicToc 論文
+ * Cicada: Dependably Fast Multi-Core In-Memory Transactions
+ ** @<href>{https://dl.acm.org/doi/10.1145/3035918.3064015}
+ ** SIGMOD2017
+ ** Cicada 論文
+
+
+分散 CC についての議論もあります。論文だけ列挙しておきます。
+
+ * Calvin: fast distributed transactions for partitioned database systems
+ ** @<href>{https://dl.acm.org/doi/10.1145/2213836.2213838}
+ ** SIGMOD2012
+ * Ocean vista: gossip-based visibility control for speedy geo-distributed transactions
+ ** @<href>{https://dl.acm.org/doi/10.14778/3342263.3342627}
+ ** PVDLB2019
+ * Aria: a fast and practical deterministic OLTP database
+ ** @<href>{https://dl.acm.org/doi/10.14778/3407790.3407808}
+ ** PVLDB2019
 
 
 == データ構造の方針
@@ -244,6 +282,7 @@ B+tree は Concurrent index としての長い歴史がありますので、勉�
 私は読んでませんが 2018 年の論文で In-memory index の評価論文があるので、参考にしてください。
 
  * A Comprehensive Performance Evaluation of Modern in-Memory Indices
+ ** @<href>{https://www.comp.nus.edu.sg/~dbsystem/download/xie-icde18-paper.pdf}
  ** Zhongle Xie, Qingchao Cai, Gang Chen, Rui Mao, Meihui Zhang
  ** ICDE2018
 
@@ -313,14 +352,32 @@ Crash recovery は機能面では Atomicity と Durability を確保すること
 チェックポインティングも奥深いテーマのひとつです。
 ナイーブには、Dirty で良いので全ての In-memory データをファイルとして永続化してしまい、
 後で WAL データを使って Consistent snapshot を作ります。
+最近読んだ論文で、ARIES の系譜 (Fuzzy checkpoinitng) のひとつの終着点だなと思えるものがあったので紹介します。
 
-最近は、前回の Consistent snapshot に適用できる差分を WAL から直接作ったり(Log gleaner)、
-WAL よりも論理圧縮された形で差分を生成するなど(CALC: Checkpointing Asynchronously using
-Logical Consistency とか CPR: Concurrent Prefix Recovery というキーワード)、
+ * Constant time recovery in Azure SQL database
+ ** @<href>{https://dl.acm.org/doi/10.14778/3352063.3352131}
+ ** PVLDB2019
+
+別の方法として、前に作った Consistent snapshot に適用できる差分を WAL から直接作ったり
+(Log gleaner、先に紹介した FOEDUS 論文)、
+WAL よりも論理圧縮された形で差分を生成するなど(CALC 論文、CPR 論文)、
 色々とあります。
 
-チェックポインティングに要求されるのは、WAL のサイズを大きくしすぎないことです。
-そのために、いかに早く効率的に古い WAL データを捨てられるかという視点で考える必要があります。
+ * Low-Overhead Asynchronous Checkpointing in Main-Memory Database Systems
+ ** @<href>{https://dl.acm.org/doi/10.1145/2882903.2915966}
+ ** SIGMOD2016
+ ** CALC 論文
+ * Concurrent Prefix Recovery: Performing CPR on a Database
+ ** @<href>{https://dl.acm.org/doi/10.1145/3299869.3300090}
+ ** SIGMOD2019
+ ** CPR 論文
+
+
+DBMS は Crash recovery を短時間で終わらせて新しいトランザクションを早く処理したいので、
+その視点でチェックポインティングに要求されるのは、
+Crash recovery 時に処理する必要のある WAL サイズを大きくしすぎないことです。
+また、ストレージ容量を無駄にしないためにも、
+いかに早く効率的にいらなくなった古い WAL データを捨てられるかという視点も必要です。
 
 
 
@@ -365,7 +422,6 @@ GPS や原子時計など精度の高い時刻を生成するハードウェア�
 皆さんには、こんな機能や性能を持つハードウェアがあったら何ができるか、
 今見えている課題の解決をサポートするハードウェアはどんなものか、という視点を
 持ってもらいたいです。
-
 @<secref>{memo|sec-hardware-evolution}も関連すると思いますので参考にしてください。
 
 

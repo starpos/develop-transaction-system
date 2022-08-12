@@ -328,7 +328,8 @@ pdfmaker:
   # bbox: mediabox
   #
   # 奥付を作成するか。trueを指定するとデフォルトの奥付、ファイル名を指定するとそれがcolophon.htmlとしてコピーされる
-  colophon: true
+  #colophon: true
+  colophon: false
   # pdfmaker:階層を使うものはここまで
 
 mathformat: mathml

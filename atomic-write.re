@@ -84,8 +84,8 @@ Rename の結果を永続化するには、新しいファイルに対してさ�
 対応するディレクトリエントリを永続化する必要があるという話がありましたが、
 @<tt>{ext4} など最近のファイルシステムでは対象ファイルの @<tt>{fsync} で良さそうです@<fn>{footnote_rename}。
 
- * 参考(1): http://d.hatena.ne.jp/kazuhooku/20100202/1265106190
- * 参考(2): http://blog.gachapin-sensei.com/archives/618823.html
+ * 参考(1): @<href>{http://d.hatena.ne.jp/kazuhooku/20100202/1265106190}
+ * 参考(2): @<href>{http://blog.gachapin-sensei.com/archives/618823.html}
 
 //footnote[footnote_rename][Linux 5.17 ext4 (ordered) で私が動作を確認した限りでは、Rename 後の永続化操作は、親ディレクトリに対する @<tt>{fdatasync} をするのでも新しいファイルに対する @<tt>{fsync} をするのでもどちらでも構わないようです。ただ、異なるファイルシステムや異なる OS では挙動が異なるかも知れませんので十分注意してください。]
 

@@ -147,7 +147,7 @@ C を使うべきじゃないかと主張しており、私もそれに同意し
 
  * Overview of Consistency Levels in Database Systems (2019-07-25)
  ** Daniel Abadi
- ** http://dbmsmusings.blogspot.com/2019/07/overview-of-consistency-levels-in.html
+ ** @<href>{http://dbmsmusings.blogspot.com/2019/07/overview-of-consistency-levels-in.html}
 
 ここでの Consistency は、より厳密には External consistency と呼ばれる性質だと私は認識しており、
 トランザクション間の順序制約をシステムの外から与えるものと解釈できます。

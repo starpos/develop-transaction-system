@@ -204,7 +204,7 @@ Parimary key としてマイナンバーを使った方が良いと考える向�
 未来永劫同じ番号が使い回されることがないのかなど、
 Primary key として採用することに疑問がないわけではありません。
 アプリケーション・データベース設計において、Primary key をどうするかひとつとっても、
-要件や制約を考える必要があったりしますので注意したいところです。
+要件に立ち返って考える必要があったりしますので注意したいところです。
 //}
 
 
@@ -285,7 +285,7 @@ N 側の各 Record が配列などで M 側の Record を指すポインタを�
 興味のある人は調べてみてください@<fn>{footnote_no_pointer}。
 ポインタを扱わないことで、多少窮屈ですが Dangling pointer がない世界に住むことができます。
 
-//footnote[footnote_no_pointer][私も詳しくないですが、http://leoclock.blogspot.com/2009/01/blog-post_07.html によると、Readings in Database Systems の中の解説記事に、書いてあるようです。]
+//footnote[footnote_no_pointer][私も詳しくないですが、@<href>{http://leoclock.blogspot.com/2009/01/blog-post_07.html} によると、Readings in Database Systems の中の解説記事に、書いてあるようです。]
 
 
 
@@ -341,7 +341,7 @@ NULL を考慮し忘れると演算が想定外の結果になってしまうこ
 
  * Mathematics for Computer Science.
  ** Eric Lehman, F Thomson Leighton, and Albert R Meyer.
- ** https://courses.csail.mit.edu/6.042/spring18/mcs.pdf
+ ** @<href>{https://courses.csail.mit.edu/6.042/spring18/mcs.pdf}
 
 を挙げておきます。
 特に、集合の基礎と述語論理のところをきちんと学んで使えるように練習することが、

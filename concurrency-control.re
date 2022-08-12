@@ -167,21 +167,21 @@ Trivial schedule も Transaction order を用いて定義します。
 
 ====[/column]
 
-//footnote[simple_mvsr_definition][https://qiita.com/starpoz/items/266ab514bbc308d438a6]
+//footnote[simple_mvsr_definition][@<href>{https://qiita.com/starpoz/items/266ab514bbc308d438a6}]
 
 
 === Anomaly
 
 (Multi-version) view serializable ではないということは、
 View 等価な Trivial schedule がひとつも存在しないことを意味します。
-ということは、どんな Trivial schedule を持ってきても、
-読むべき Version を読めていない Read operation が存在するということです。
+ということは、どんな Transaction schedule を持ってきても、
+それとは View が一致しない、すなわち読むべき Version を読めていない Read operation が存在するということです。
 この Read operation の View は正常ではない、すなわち異常です。
 これを Anomaly と呼び、Dirty read とか、Lost update など、典型的パターンには名前がついています。
 しかし、名前がついている Anomaly を列挙していけば、View の異常を全て網羅できるとは考えない方が良いでしょう。
 詳細が気になる人は、「いろんなAnomaly」@<fn>{footnote_various_anomaly} という記事がありますので参考にしてください。
 
-//footnote[footnote_various_anomaly][いろんなAnomaly: https://qiita.com/kumagi/items/5ef5e404546736ebac49]
+//footnote[footnote_various_anomaly][いろんなAnomaly: @<href>{https://qiita.com/kumagi/items/5ef5e404546736ebac49}]
 
 
 
