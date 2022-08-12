@@ -16,5 +16,4 @@
 2022 年 8 月現在、[Re:VIEW](https://github.com/kmuto/review) 5.5 でビルドできます。
 LaTeX 経由で PDF が生成できることしか確認していません。
 
-
 -----
