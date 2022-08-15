@@ -285,7 +285,9 @@ N 側の各 Record が配列などで M 側の Record を指すポインタを�
 興味のある人は調べてみてください@<fn>{footnote_no_pointer}。
 ポインタを扱わないことで、多少窮屈ですが Dangling pointer がない世界に住むことができます。
 
-//footnote[footnote_no_pointer][私も詳しくないですが、@<href>{http://leoclock.blogspot.com/2009/01/blog-post_07.html} によると、Readings in Database Systems の中の解説記事に、書いてあるようです。]
+//footnote[footnote_no_pointer][「ぜひ押さえておきたいデータベースの教科書」 (Leo's Chronicle, @<href>{http://leoclock.blogspot.com/2009/01/blog-post_07.html}) という記事によると、Readings in Database Systems (Red Book, @<href>{http://www.redbook.io/}) の中の解説記事に書いてあるようです。2022 年現在 Red Book 5th Edition がオンラインで気軽に読めますが、目的の記事はおそらく過去の Edition にあった The Roots という章だと思いますが、私は確認できていません。おそらく Relational model と対比すべく Hierarchical(階層型)/Network(ネットワーク型) data model についての話が書いてあると推察します。]
+
+
 
 
 

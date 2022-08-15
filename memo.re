@@ -1,9 +1,8 @@
 = 雑多なメモ
 
 
-本章は、本文に書くにはちょっとな、という雑多なメモが押し込まれています。
-順番は特に重要ではありません。
-
+本章は、本文に書くにはちょっとな、という雑多な記事が押し込まれており、
+その多くは他の章から参照されています。順番は特に重要ではありません。
 
 
 =={sec-block-device} ブロックデバイスとしての永続ストレージ
@@ -60,14 +59,13 @@ Flash メモリ (NAND 型)は、HDD とは別の物質、仕組みを利用し�
 SRAM、DRAM、Flash メモリ、HDD、(光学メディア、テープ) で構成される
 典型的なコンピュータストレージ階層で採用されることはこれまでありませんでした。
 (実際は DRAM ですら 32bytes や 64bytes などの Cache line 単位でアクセスされるのですが、
-512bytes や 4KiB に比べれば十分小さい単位といえるでしょう。。。)
+512bytes や 4KiB に比べれば十分小さい単位といえるでしょう……)
 2018 年に 3D Xpoint メモリを使った SSD 製品が、2019 年に NVDIMM として Optane DC Persistent Memory が投入され、
 ストレージ階層に食い込もうとチャレンジしています。
-(なんということでしょう、2022 年現在、Optane memory のビジネスが終わってしまうことが確実なようです。。。)
+(なんということでしょう、2022 年現在、Optane memory のビジネスが終わってしまうことが確実なようです……)
 低コスト、大容量、Flash メモリよりも高性能であるようなバイト単位のアクセスが可能な NVRAM が台頭すれば、
 ブロックデバイスに最適化されたソフトウェアは淘汰される運命ですので、ハードウェアの研究開発には
 DBMS 屋さんとしては目を光らせておく必要が常にあります。
-
 
 
 
@@ -257,9 +255,12 @@ MySQL、PostgreSQL などは、どこまで付いていけるか、見物です�
 
  * @<href>{https://github.com/herumi/cybozulib/blob/master/include/cybozu/test.hpp}
 
-有名所としては、Google Test でしょうか。
+C++ 向けのテストフレームワークの有名所としては Google Test が挙げられるでしょう。
 
  * @<href>{https://github.com/google/googletest}
+
+比較的新しい言語 (Go とか Rust とか) には公式のテストフレームワークが用意されていることが多いと思います。
+余程の事情がなければそれに従っておけば良いと思います。
 
 原則としては、終了コードでパスしたかどうかを判別できるようなテストプログラムを
 テストしたい項目毎に書けば良いと思います。
@@ -272,7 +273,7 @@ MySQL、PostgreSQL などは、どこまで付いていけるか、見物です�
 今回のような学習用、プロトタイピング的なプログラムを作る場合に、このようなテストにたくさん時間をかけたくないでしょう。
 ただ、何回も実行するのが面倒くさいと人間はサボるようになりますから、
 何回も実行する必要があるテストは自動化しておきましょう。
-Crash recovery は事ある度にテストして欲しいです。
+本書に出てくる機能を例に挙げると、Crash recovery は事ある度にテストして欲しいです。
 また、データ構造とアルゴリズムのコードは、比較的テストしやすい一方で
 複雑であるためバグを入れてしまいやすいです。
 よって、積極的にテストコードを書きましょう。
@@ -289,6 +290,77 @@ Crash recovery は事ある度にテストして欲しいです。
 バグが入りにくい設計、実装を心がけることが重要なのはいうまでもありません。
 しかし、バグがないプログラムなどない、と言われるくらいにバグは身近なものですから、
 品質の良いソフトウェアはテストについての実践と切っても切りはなせません。
+
+
+
+
+=={sec-recoverability} Recoverability や Strong recoverability について
+
+
+DBMS は最低でも Recoverability (RC) を満たす必要がありますが、
+RC のみを満たそうとすると、Cascading aborts (Abort 処理の連鎖) 機構を
+DBMS に持たせる必要があるので、設計実装の複雑さやそれに伴うオーバーヘッドを考慮すると
+オススメできません。昔はあったようですが、現代の DBMS プロダクトで Cascading aborts 機構を供えている
+ものは少ないです(例外として Hekaton という DBMS があります)。
+
+Cascading aborts を防ぐには、トランザクション A が書いた Record を
+トランザクション B が読もうとするとき、A が Commit するまで待てば良いです。
+この制約を Avoiding cascading aborts (ACA) といいます。ACA を満たせば RC も満たします。
+
+ACA だけだと Crash recovery 時に処理が複雑になります。
+具体的には、トランザクション A がある Record を書いた後、トランザクション B が同一 Record を
+書き、A のみ Abort 扱いで B が Commit 扱いになった場合です。
+この場合、A の Undo 処理の後に B の Redo 処理を行う必要があります。
+B の Redo よりも A の Undo を後で行うと、
+B の書いたデータが A の Undo 処理によって消えてしまう可能性があるからです。
+まとめて Redo した後、まとめて Undo するというより単純な Crash recovery を実現するには、
+A が Commit するまで B が書くのを待てば良いです。ACA にこれを加えた制約を
+Strictness (ST) といいます。
+
+Crash recovery が目的であれば ST で十分です。
+しかし、もっと強い制約が必要なケースがあります。
+それは Log を他のホストにレプリケーションして、適用し、レプリカ側で Read-only トランザクションを実行する
+ような構成です。
+問題が起きるのはトランザクション A がある Record を読んだ後、トランザクション B が同一 Record を上書きし、
+しかし Commit 順は B < A となってしまった場合です。
+このときレプリケーション先で B までの Log を適用し A の Log がまだ適用されていない
+データベースは一貫性のある状態とはいえません。
+レプリケーション元では A < B つまり A の後に B が実行されたことになっており、
+B < A に基づいた順序が具現化することは Serializability の文脈では許容されないのです。
+この問題を防ぐためには、やはり A の Commit を待ってから B は上書きする必要があります。
+ST にこれを加えた制約を Rigorousness (RG) といいます。
+詳しくは、Transactional Information Systems 本の 11.4 節 Sufficient Syntactic Conditions
+を参照ください。RC/ACA/ST/RG についての詳細が知りたい方には以下の論文が参考になると思います。
+
+ * A theory of reliability in database systems
+ ** @<href>{https://dl.acm.org/doi/10.1145/42267.42272}
+ ** Journal of the ACM, Volume 35, Issue 1, Jan. 1988.
+ ** RC/ACA/ST について議論している論文。
+ * On rigorous Transaction Scheduling
+ ** @<href>{https://dl.acm.org/doi/abs/10.1109/32.92915}
+ ** IEEE Transactions on Software Engineering, Volume 17, Issue 9, September 1991.
+ ** RG について議論している論文。
+
+
+
+上記の議論は、Single-version model を前提にした議論で、Concurrency control の詳細に
+踏み入った議論が含まれています(特に、ACA や ST、RG の話)。
+本来この話はもう少し単純です。最近私が整理している理論によれば、
+Commit の依存関係が含まれる順序での実行結果を再現できれば、Recoverable といえます。
+また、Serialization order に基づいた順序で実行結果を再現できれば、Strong recoverable といえます。
+(RG は Strong recoverability を満たすと考えて良いです)。
+もちろん前提として、Committed なものは実行済みとして結果に含まれる必要はあります。
+Crash recovery の要件であれば Recoverable を、レプリカ上の Read-only アクセスも含めて Serializable に
+動かしたい場合は Strong recoverable を採用すれば良いです。
+
+最近のインメモリ DBMS では Commit 操作が Pre-commit (Concurrency control による処理が完了)と
+Log の永続化に分離されている設計が多く、
+Commit を待って読み書きする、という言葉が言葉通りに解釈できないことがありますのでご注意ください。
+Pre-commit 操作と Log 永続化操作を分離する設計では、
+Serialization order もしくはそれに相当する情報を何らかの方法で WAL データに記録し、
+後で必要な制約(Recoverability や Strong recoverability など)を満たす
+Commit order を再現して Crash recovery を実行する仕組みが使われます。
+
 
 
 

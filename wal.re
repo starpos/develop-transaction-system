@@ -153,9 +153,10 @@ A が Abort 扱いになるのであれば、A の書いた Record データは�
 //footnote[footnote_reads_from][Reads-from 関係ともいいます。B reads from A とか B reads x from A といったりします。]
 
 Recoverability よりも強い制約として Strong recoverability があり、
-それを DBMS が満たせば (1) が満たされたとき (2) も自動的に満たされるようになるので、
+Serialization order の順に Commit することを意味します。
+Strong recoverability を DBMS が満たせば (1) が満たされたとき (2) も自動的に満たされるようになるので、
 ここでは Strong recoverability を前提として (1) のみを気にすることにします。これなら簡単ですね。
-詳細はコラムに書いておきました。
+詳細は@<secref>{memo|sec-recoverability}に書いておきました。
 
 Commit log を永続化した後に Commit 成否はユーザ/アプリケーションに通知されているはずですから、
 Commit 成功したと通知されているトランザクションは全て Commit log が永続化されているはずです。
@@ -172,59 +173,6 @@ Log 適用の順番には気をつける必要があります。
 どんな情報が必要かは並行実行制御プロトコルや WAL 方式に依存します。
 半順序関係を満たせば良いということは、理論上は並列に Log 適用することも可能です。
 
-
-====[column] Recoverability や Strong recoverability について
-
-DBMS は最低でも Recoverability (RC) を満たす必要がありますが、
-RC のみを満たそうとすると、Cascading aborts (Abort 処理の連鎖) 機構を
-DBMS に持たせる必要があるので、設計実装の複雑さやそれに伴うオーバーヘッドを考慮すると
-オススメできません。昔はあったようですが、現代の DBMS プロダクトで Cascading aborts 機構を供えている
-ものは少ないです(例外として Hekaton という DBMS があります)。
-
-Cascading aborts を防ぐには、トランザクション A が書いた Record を
-トランザクション B が読もうとするとき、A が Commit するまで待てば良いです。
-この制約を Avoiding cascading aborts (ACA) といいます。ACA を満たせば RC も満たします。
-
-ACA だけだと Crash recovery 時に処理が複雑になります。
-具体的には、トランザクション A がある Record を書いた後、トランザクション B が同一 Record を
-書き、A のみ Abort 扱いで B が Commit 扱いになった場合です。
-この場合、A の Undo 処理の後に B の Redo 処理を行う必要があります。
-B の Redo よりも A の Undo を後で行うと、
-B の書いたデータが A の Undo 処理によって消えてしまう可能性があるからです。
-まとめて Redo した後、まとめて Undo するというより単純な Crash recovery を実現するには、
-A が Commit するまで B が書くのを待てば良いです。ACA にこれを加えた制約を
-Strictness (ST) といいます。
-
-Crash recovery が目的であれば ST で十分です。
-しかし、もっと強い制約が必要なケースがあります。
-それは Log を他のホストにレプリケーションして、適用し、レプリカ側で Read-only トランザクションを実行する
-ような構成です。
-問題が起きるのはトランザクション A がある Record を読んだ後、トランザクション B が同一 Record を上書きし、
-しかし Commit 順は B < A となってしまった場合です。
-このときレプリケーション先で B までの Log を適用し A の Log がまだ適用されていない
-データベースは一貫性のある状態とはいえません。
-レプリケーション元では A の後に B が実行されたことになっていますが、
-この状態は元の世界では存在しないからです。
-この問題を防ぐためには、やはり A の Commit を待ってから B は上書きする必要があります。
-ST にこれを加えた制約を Rigorousness (RG) といいます。
-RG が満たしてくれる性質を Strong recoverability と呼びます。
-詳しくは、Transactional Information Systems 本の 11.4 節 Sufficient Syntactic Conditions
-を参照ください。
-
-上記の議論は、Single-version model を前提にした議論で、Concurrency control の詳細に
-踏み入った議論が含まれています(特に、ACA や ST、RG の話)。
-本来この話はもう少し単純です。最近私が整理している理論によれば、
-Commit の依存関係が含まれる順序での実行結果を再現できれば、Recoverable といえます。
-また、Serialization order に基づいた順序で実行結果を再現できれば、Strong recoverable といえます。
-もちろん前提として、Committed なものは実行済みとして結果に含まれる必要はあります。
-Crash recovery の要件であれば Recoverable を、レプリカ上の Read-only アクセスも含めて Serializable に
-動かしたい場合は Strong recoverable を採用すれば良いです。
-
-最近のインメモリ DBMS では Commit 操作が Pre-commit (Concurrency control による処理が完了)と
-Log の永続化に分離されている設計が多く、
-Commit を待って読み書きする、という言葉が言葉通りに解釈できないことがありますのでご注意ください。
-
-====[/column]
 
 
 == Checkpointing
@@ -248,17 +196,14 @@ Checkpointing とは、先延ばししていたデータベース本体ファイ
 一貫性のある Snapshot ではなく、中途半端なデータベース状態です。
 詳細はここでは述べませんが、この場合はこれを Log と組み合わせて一貫性のある Snapshot を作り出す必要があります。
 最近は、一貫性のある差分をうまく非同期的に出力する方法も模索されています。
-興味のある人は、
-CALC (Checkpointing Asynchronously using Logical Consistency) とか
-CPR (Concurrent Prefix Recovery) などのキーワードで調べてください。
 また、Log を使って古い Snapshot から新しい Snapshot を生成する方法もあります。
 新しい Snapshot があれば古い Log は消せますから、Checkpoinitng の目的を達成できるというわけです。
 並列 Logging およびデータベースが分割 (Partitioned) されている前提であれば、
 Map-reduce のような処理をして、古い Snapshot から新しい Snapshot を作ることになります。
+@<secref>{next-step|sec-direction-for-durability}にもう少し詳しく書いておきました。
 
 Checkointing の良さの指標とは、差分を取り出すためのオーバーヘッドが小さいことと、
 新しい Snapshot を作るためのコストや時間が小さいことです。
 後者は、滞留する Log の量が許容量を越えなければ実用的だと言えます。
 追い付けない場合はシステム運用が破綻するので、オンライン処理にバックプレッシャーをかけて遅くする必要さえあり得ます。
 Checkpointing の手法を考えたり、設計したりする場合は、これらの指標を意識してください。
-

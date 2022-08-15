@@ -133,7 +133,7 @@ A、C、および D を緩められるシステムというのはほぼ有り得
 
 ACID の C すなわち Consistency については、いわゆる教科書では、
 Unique key や Foreign key など、データベース設計者がデータベースに課す制約のことだと説明されています。
-ただ、これは本来、アプリケーションがデータに求める制約(としての不変条件)であり、
+ただ、これは本来、アプリケーションがデータに(明示的もしくは暗黙的に)求める制約(としての不変条件)であり、
 データベースシステムはそれを手助けする機能を提供しているだけだという解釈ができます。
 最も厳しい Isolation 制約である Serializability が満たされていれば、
 アプリケーションは通常の読み書きの範囲内で任意の不変条件が満たされているか検査することができます。
@@ -172,8 +172,8 @@ Serializability だってアプリケーションが求めている性質と解�
 
 ====[/column]
 
-//footnote[ramp-transaction][RAMP transaction や Coordination avoidance、I-confluent などのキーワードで検索してください。]
 //footnote[consistency-in-distributed-systems][データベースの複製が複数存在するシステムにおいて、Consistency という言葉には、複製が同じ状態に収束するという意味合いもあります。ACID を議論するようなトランザクションシステムではそんなことは当然で、かつ、状態の遷移についても厳しい制約を前提にしていることが多いです。]
+//footnote[ramp-transaction][RAMP transaction や Coordination avoidance、I-confluent などのキーワードで検索してください。]
 
 
 
@@ -253,5 +253,6 @@ DBMS のコードに必要なトランザクションロジック等を追加で
 
 
 ここに挙げた以外にも、様々な分類があり得ると思います。例えば、In-memory DBMS とそうでない DBMS や、
-Distributed DBMS とそうでない DBMS など。。。トランザクション処理システムについて考えるときは、
+Distributed DBMS とそうでない DBMS など……トランザクション処理システムについて考えるときは、
 どのような仮定を置いているか、その仮定は(そのときの目的にとって)妥当か、という視点を常に持つようにしましょう。
+

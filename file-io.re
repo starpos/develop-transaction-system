@@ -178,3 +178,10 @@ Hole には使用領域を節約できる、アクセスを高速化できる、
  * @<tt>{link()}, @<tt>{symlink()}, @<tt>{unlink()}, @<tt>{rename()}
  * @<tt>{mkdir()}, @<tt>{rmdir()}
  * @<tt>{opendir()}, @<tt>{closedir()}, @<tt>{readdir()}, @<tt>{scandir()} (これらはシステムコールというより glibc 関数)
+
+
+=== ブロックデバイスについて
+
+多くの OS における多くのファイルシステムは、
+Linux ではブロックデバイスと呼ばれる永続ストレージを抽象するデバイスの上で動きます。
+詳しくは@<secref>{memo|sec-block-device}に書きましたので参考にしてください。

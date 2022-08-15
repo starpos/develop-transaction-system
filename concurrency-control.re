@@ -278,8 +278,11 @@ Write lock だけでなく Read lock の解放を Commit 完了後に行う制�
 SS2PL は Rigorousness も満たします。
 つまり、2PL に対して、S2PL や SS2PL は 永続化 (WAL) のことも考慮されているプロトコルといえます。
 
+S2PL のもう少し具体的な設計方針は、@<secref>{next-step|sec-direction-for-concurrency-control}に書きましたので
+参考にしてください。
+
 なお、先に紹介した Silo は、CC protocol の仕事と Logging の永続化を分離しており
-(元々は Early Lock Release という名前で議論された手法の本質を、Silo は踏襲したと解釈して良いでしょう)、
+(元々は Early Lock Release という名前で議論された手法の本質を Silo は取り入れたと解釈して良いでしょう)、
 永続化の遅延がスループットに影響を与えないような工夫をしながらも Strong recoverability 相当の保証を実現します。
 CC protocol と Logging の分離が今後の標準的な手法になるのは間違いないと私は思います。
 
