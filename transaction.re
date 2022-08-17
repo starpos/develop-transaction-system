@@ -95,19 +95,30 @@ Delete についても同様の意味論の操作を構成することができ�
 トランザクションが開始されることが明らかであるときは @<tt>{begin} が省略できるインターフェースもあります。
 @<tt>{commit} コマンドはトランザクションの正常終了を試みる操作です。成功した場合、
 その結果すなわちトランザクションによる書き込み操作がデータベースに反映されます。
-@<tt>{abort} コマンドは、トランザクションを意図的に失敗させて、なかったことにする操作です(User abort と呼びます)。
-@<tt>{commit} 操作が失敗した場合、@<tt>{abort} 操作をしたのと同じ結果となります。
-トランザクションの @<tt>{commit} 要求が来て、そのままでは ACID の性質を担保できないと判断したとき、
-DBMS は @<tt>{commit} 操作を失敗させて @<tt>{abort} 扱いにすることがあります(System abort)。
-私が知る限り、@<tt>{commit} 操作が失敗するのは、並行にトランザクションが実行されていて、
-全てのトランザクションを同時に @<tt>{commit} 扱いすることができない場合です。
-アプリケーションは、@<tt>{commit} 操作を DBMS に要求しますが、
-その返事が返ってくるまでは成功したかどうか分かりません。
+このときトランザクションは Commit したもしくは Committed 状態になった、といいます。
+Committed 状態になったトランザクションの結果は失われません。これが ACID の D (Durability) の性質ですね。
+@<tt>{abort} コマンドは、トランザクションを意図的に失敗させる操作です。
+このとき、そのトランザクションの実行はなかったことになり、
+Abort したもしくは Aborted 状態になった、といいます。
+トランザクションが完了したら、必ず Committed もしくは Aborted いずれかの状態となります。
+これが ACID の A (Atomicity) の性質ですね。
+@<tt>{abort} コマンド以外の要因でもトランザクションは Abort することがあります。
+@<tt>{abort} コマンド要因の Abort を User abort、それ以外を System abort と呼びます。
+@<tt>{commit} コマンドは失敗する可能性があります。
+@<tt>{commit} 要求が来たけれども ACID の性質を担保できないと判断したとき、
+DBMS はそのトランザクションを System abort させ、@<tt>{commit} コマンドを失敗させます。
+例えば、並行にトランザクションが実行されていて、
+全てのトランザクションを同時に @<tt>{commit} 扱いすることができない場合は
+System abort となります@<fn>{footnote_user_abort_system_abort}。
 また、突然の電源断などの故障(以後 Crash と呼びます)が起き、@<tt>{commit} 成否の返事を受けとれなかったとき、
 @<tt>{commit} できたかどうかは、再起動時のデータベース復旧操作 (Crash recovery といいます) が終わるまで分かりません
-@<fn>{footnote_commit_confirm}。Crash におって Abort 扱いになる場合も System abort に分類して良いでしょう。
+@<fn>{footnote_commit_confirm}。Crash によって Abort 扱いになる場合も System abort としてよいでしょう。
 
+
+//footnote[footnote_user_abort_system_abort][Unique key 制約違反などでもトランザクションは Abort しますが、対応する操作についてその場でエラーが返ってきて User abort の判断を迫られるか、Commit 要求後に制約違反が判明して System abort となるかは、DBMS の設計によります。]
 //footnote[footnote_commit_confirm][分散 DBMS においては故障の概念が違うのでその限りではありません。]
+
+
 
 
 
